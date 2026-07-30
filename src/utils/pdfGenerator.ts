@@ -110,24 +110,29 @@ export function generateStudentPDF(student: Student, monthKey?: string) {
   doc.setDrawColor(191, 219, 254); // #BFDBFE
   doc.roundedRect(14, yPos, 182, 22, 3, 3, 'FD');
 
-  doc.setFontSize(10);
+  doc.setFontSize(8.5);
   doc.setFont('helvetica', 'bold');
 
   // Present
   doc.setTextColor(5, 150, 105);
-  doc.text(`Present: ${stats.present}`, 22, yPos + 14);
+  doc.text(`Present: ${stats.present}`, 18, yPos + 13.5);
 
   // Absent
   doc.setTextColor(220, 38, 38);
-  doc.text(`Absent: ${stats.absent}`, 68, yPos + 14);
+  doc.text(`Absent: ${stats.absent}`, 56, yPos + 13.5);
 
   // Holiday
   doc.setTextColor(99, 102, 241);
-  doc.text(`Holidays: ${stats.holiday}`, 112, yPos + 14);
+  doc.text(`Holidays: ${stats.holiday}`, 96, yPos + 13.5);
 
-  // Attendance Ratio Percentage
+  // Attendance Ratio Percentage (Right-aligned to ensure it stays within box)
   doc.setTextColor(30, 58, 138);
-  doc.text(`Attendance: ${stats.percentage}% (${stats.badgeLabel})`, 150, yPos + 14);
+  doc.text(
+    `Attendance: ${stats.percentage}% (${stats.badgeLabel})`,
+    191,
+    yPos + 13.5,
+    { align: 'right' }
+  );
 
   yPos += 28;
 
@@ -198,7 +203,14 @@ export function generateStudentPDF(student: Student, monthKey?: string) {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(100, 116, 139);
-  doc.text(`Generated on: ${formattedToday} • Verma Classes Digital Record Portal`, 14, finalY);
+
+  // Centered footer text across the page width (105mm is center for A4)
+  doc.text(
+    `Generated on: ${formattedToday} • Verma Classes Digital Record Portal`,
+    105,
+    finalY,
+    { align: 'center' }
+  );
 
   doc.save(`Verma_Classes_${student.name.replace(/\s+/g, '_')}_${monthKey || 'Report'}.pdf`);
 }
