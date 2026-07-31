@@ -8,6 +8,20 @@ interface BackupRestoreModalProps {
   onClose: () => void;
 }
 
+// Helper to generate dynamic filename with current date and time
+const getFormattedBackupFilename = (): string => {
+  const now = new Date();
+  const pad = (num: number) => String(num).padStart(2, '0');
+
+  const year = now.getFullYear();
+  const month = pad(now.getMonth() + 1);
+  const day = pad(now.getDate());
+  const hours = pad(now.getHours());
+  const minutes = pad(now.getMinutes());
+
+  return `AttendanceBackup-${year}-${month}-${day}-${hours}-${minutes}.db`;
+};
+
 export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
   students,
   onRestoreData,
@@ -16,7 +30,7 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Download AttendanceBackup.db file
+  // Download timestamped AttendanceBackup file
   const handleDownloadBackup = () => {
     const backupObj = {
       app: 'Verma Classes Attendance Record',
@@ -26,17 +40,18 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
       students,
     };
 
+    const filename = getFormattedBackupFilename();
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(backupObj, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', dataStr);
-    downloadAnchor.setAttribute('download', 'AttendanceBackup.db');
+    downloadAnchor.setAttribute('download', filename);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
 
     setStatusMsg({
       type: 'success',
-      text: 'AttendanceBackup.db exported successfully!',
+      text: `${filename} exported successfully!`,
     });
   };
 
@@ -99,7 +114,7 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
         {/* Content */}
         <div className="p-6 space-y-6">
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            Create an offline database backup file (<code>AttendanceBackup.db</code>) or restore your database if Windows or browser cache is reinstalled.
+            Create an offline database backup file (e.g. <code>AttendanceBackup-YYYY-MM-DD.db</code>) or restore your database if Windows or browser cache is reinstalled.
           </p>
 
           {statusMsg && (
@@ -125,14 +140,14 @@ export const BackupRestoreModal: React.FC<BackupRestoreModalProps> = ({
               1. Download Backup File
             </h4>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Exports current student list, attendance history, and fee records to <code>AttendanceBackup.db</code>.
+              Exports current student list, attendance history, and fee records to a timestamped <code>.db</code> file.
             </p>
             <button
               onClick={handleDownloadBackup}
               className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              <span>Backup Database (AttendanceBackup.db)</span>
+              <span>Backup Database</span>
             </button>
           </div>
 
